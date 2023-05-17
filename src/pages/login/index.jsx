@@ -1,14 +1,28 @@
 import { Button, Form, Input } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { apiInstance } from "../../api";
 import styles from "./index.module.scss";
 
 export default function LoginPage({ isLogin = true }) {
   const navigattion = useNavigate();
-  const handleSubmitForm = (values) => {
-    console.log(values);
-    localStorage.setItem("access_token", "token ne");
-    navigattion("/");
+  const handleSubmitForm = async (values) => {
+    if (isLogin) {
+      const { success, accessToken, message } = await apiInstance.post(
+        "auth/login",
+        values
+      );
+      if (success) {
+        localStorage.setItem("access_token", accessToken);
+        navigattion("/");
+        alert(message);
+      } else {
+        alert(message);
+      }
+    } else {
+      const { status } = await apiInstance("auth/register", values);
+      console.log(333, status);
+    }
   };
 
   const handleNavigateLogin = () => {
