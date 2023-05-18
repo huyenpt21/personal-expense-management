@@ -24,3 +24,37 @@ code {
 .filter__section {
   margin: 12px 0;
 }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.header Button {
+  margin: 0 8px;
+}
+
+.title {
+  margin-bottom: 18px;
+}
+
+:where(.css-dev-only-do-not-override-yp8pcc).ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > th,
+:where(.css-dev-only-do-not-override-yp8pcc).ant-table-wrapper
+  .ant-table-thead
+  > tr
+  > td {
+  background-color: rgb(127, 192, 83);
+}
+
+.action__icon {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: baseline;
+}
+
+.action__icon svg {
+  cursor: pointer;
+}
