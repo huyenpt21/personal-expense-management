@@ -34,6 +34,11 @@ code {
   margin: 0 8px;
 }
 
+.upload__button Button {
+  margin-right: 8px;
+  margin-bottom: 12px;
+}
+
 .title {
   margin-bottom: 18px;
 }

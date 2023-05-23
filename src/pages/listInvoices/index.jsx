@@ -88,7 +88,7 @@ export default function ListInvoices() {
   const [record, setRecord] = useState([]);
   useEffect(() => {
     apiInstance
-      .get("/invoice/get-all")
+      .get("invoice/get-all")
       .then(({ data: listInvoices }) => {
         const listMock = dataMock.map((el) => ({
           ...el,
@@ -96,6 +96,7 @@ export default function ListInvoices() {
           amount: el.table[0].amount,
           tax_rate: el.table[0].tax_rate,
           createdAt: dayjs(el.createdAt).format("DD/MM/YYYY"),
+          action: <div></div>,
         }));
         console.log(333, listMock);
         setRecord(listMock);

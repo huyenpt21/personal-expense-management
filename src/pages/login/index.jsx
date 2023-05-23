@@ -3,33 +3,36 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { apiInstance } from "../../api";
 import styles from "./index.module.scss";
+import axios from "axios";
 
 export default function LoginPage({ isLogin = true }) {
-  const navigattion = useNavigate();
+  const navigation = useNavigate();
   const handleSubmitForm = async (values) => {
     if (isLogin) {
-      const { success, accessToken, message } = await apiInstance.post(
-        "auth/login",
-        values
-      );
+      const {
+        data: { success, accessToken, message },
+      } = await axios.post("http://localhost:5001/auth/login", values);
       if (success) {
         localStorage.setItem("access_token", accessToken);
-        navigattion("/");
-        alert(message);
+        apiInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
+        navigation("/");
       } else {
-        alert(message);
       }
     } else {
-      const { status } = await apiInstance("auth/register", values);
-      console.log(333, status);
+      const {
+        data: { success, message },
+      } = await apiInstance.post("auth/register", values);
+      if (success) {
+        navigation("/");
+      }
     }
   };
 
   const handleNavigateLogin = () => {
     if (isLogin) {
-      navigattion("/register");
+      navigation("/register");
     } else {
-      navigattion("/");
+      navigation("/");
     }
   };
   return (

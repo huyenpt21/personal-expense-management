@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Row, Table, Tooltip } from "antd";
+import { Button, Col, DatePicker, Input, Row, Table, Tooltip } from "antd";
 import { apiInstance } from "../../api";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -57,6 +57,22 @@ const mockData = [
   },
 ];
 
+const handleChange = (e) => {
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.addEventListener("load", () => {
+    // Base64 Data URL 👇
+    const body = {
+      base64_image: reader.result,
+    };
+    apiInstance.post("invoice/upload", body);
+  });
+
+  reader.readAsDataURL(file);
+};
+
 export default function HomePage() {
   const navigate = useNavigate();
   const [record, setRecord] = useState([]);
@@ -113,6 +129,9 @@ export default function HomePage() {
                       viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      onClick={() => {
+                        navigate("/upload-invoice");
+                      }}
                     >
                       <path
                         d="M12 8L12 16"
@@ -144,9 +163,8 @@ export default function HomePage() {
           setRecord(filterValue);
         }
       });
-  }, [query]);
+  }, [navigate, query]);
 
-  console.log(333, record);
   const handleChangeMonth = (value) => {
     const month = dayjs(value).month() + 1;
     const year = dayjs(value).year();
@@ -177,7 +195,15 @@ export default function HomePage() {
             >
               View all invoices
             </Button>
-            <Button type="primary">Logout</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                localStorage.removeItem("access_token");
+                navigate("/");
+              }}
+            >
+              Logout
+            </Button>
           </Row>
         </Row>
         <Row>
@@ -192,6 +218,10 @@ export default function HomePage() {
         </Row>
       </div>
       <Table dataSource={record} columns={columnTable} />
+
+      <div>
+        <input id="fileInput" type="file" onChange={handleChange} />
+      </div>
     </div>
   );
 }
