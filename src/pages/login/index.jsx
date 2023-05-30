@@ -14,7 +14,7 @@ export default function LoginPage({ isLogin = true }) {
       } = await axios.post("http://localhost:5001/auth/login", values);
       if (success) {
         localStorage.setItem("access_token", accessToken);
-        apiInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
+        apiInstance.defaults.headers.Authorization = accessToken;
         navigation("/");
       } else {
       }

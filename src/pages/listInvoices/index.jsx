@@ -1,107 +1,129 @@
-import { Button, Row, Table } from "antd";
+import { Button, Row, Table, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { apiInstance } from "../../api";
-import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
-
-const columns = [
-  {
-    title: "Invoice Number",
-    dataIndex: "_id",
-    key: "_id",
-  },
-  {
-    title: "Amount",
-    dataIndex: "amount",
-    key: "amount",
-  },
-  {
-    title: "Tax rate",
-    dataIndex: "tax_rate",
-    key: "tax_rate",
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
-  },
-  {
-    title: "Adress",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "Create Date",
-    dataIndex: "createdAt",
-    key: "createdAt",
-  },
-  {
-    title: "Seller",
-    dataIndex: "seller",
-    key: "seller",
-  },
-  {
-    title: "Serial",
-    dataIndex: "serial",
-    key: "serial",
-  },
-  {
-    title: "Tax Code",
-    dataIndex: "tax_code",
-    key: "tax_code",
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
-  },
-];
-
-const dataMock = [
-  {
-    _id: "6440ded980dce612a51003f9",
-    username: "nguyenminh@gmail.com",
-    table: [
-      {
-        description: "Phí vận chuyển [941303672]",
-        amount: 17593,
-        tax_rate: 8,
-      },
-    ],
-    base64_image: "",
-    isExtracted: true,
-    isExpensed: false,
-    createdAt: "2023-04-20T06:42:33.569Z",
-    updatedAt: "2023-04-20T06:42:57.477Z",
-    __v: 0,
-    address: "52 Út Tịch, Phường 4, Quận Tân Bình, TP. Hồ Chí Minh, Việt Nam",
-    date: "01/04/2022",
-    invoice_number: 6019841,
-    seller: "CÔNG TY TNHH MTV THƯƠNG MẠI TI KI",
-    serial: "aa/21e",
-    tax_code: "0312388363",
-  },
-];
+import { COLUMN_INVOICE } from "../../helper";
 
 export default function ListInvoices() {
   const navigate = useNavigate();
+  const { idExpense } = useParams();
   const [record, setRecord] = useState([]);
+  const [columnsRender, setColumnsRender] = useState([]);
   useEffect(() => {
-    apiInstance
-      .get("invoice/get-all")
-      .then(({ data: listInvoices }) => {
-        const listMock = dataMock.map((el) => ({
+    if (idExpense) {
+    } else {
+      apiInstance.get("invoice/get-all").then(({ data: listInvoicesData }) => {
+        const listInvoicesConverted = listInvoicesData.map((el) => ({
           ...el,
-          description: el.table[0].description,
-          amount: el.table[0].amount,
-          tax_rate: el.table[0].tax_rate,
-          createdAt: dayjs(el.createdAt).format("DD/MM/YYYY"),
-          action: <div></div>,
+          action: (
+            <div className="action__icon">
+              <Tooltip title="View detail">
+                <svg
+                  width="22px"
+                  height="22px"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  onClick={() => {
+                    navigate(`/upload-invoice/${el._id}`);
+                  }}
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="1"
+                    stroke="#33363F"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M18.2265 11.3805C18.3552 11.634 18.4195 11.7607 18.4195 12C18.4195 12.2393 18.3552 12.366 18.2265 12.6195C17.6001 13.8533 15.812 16.5 12 16.5C8.18799 16.5 6.39992 13.8533 5.77348 12.6195C5.64481 12.366 5.58048 12.2393 5.58048 12C5.58048 11.7607 5.64481 11.634 5.77348 11.3805C6.39992 10.1467 8.18799 7.5 12 7.5C15.812 7.5 17.6001 10.1467 18.2265 11.3805Z"
+                    stroke="#33363F"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M17 4H17.2C18.9913 4 19.887 4 20.4435 4.5565C21 5.11299 21 6.00866 21 7.8V8M17 20H17.2C18.9913 20 19.887 20 20.4435 19.4435C21 18.887 21 17.9913 21 16.2V16M7 4H6.8C5.00866 4 4.11299 4 3.5565 4.5565C3 5.11299 3 6.00866 3 7.8V8M7 20H6.8C5.00866 20 4.11299 20 3.5565 19.4435C3 18.887 3 17.9913 3 16.2V16"
+                    stroke="#33363F"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </Tooltip>
+              {!el?.isExtracted && (
+                <Tooltip title="Extract">
+                  <svg
+                    width="24px"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    onClick={() => {
+                      navigate("/upload-invoice");
+                    }}
+                  >
+                    <path
+                      d="M12 8L12 16"
+                      stroke="#323232"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M15 11L12.087 8.08704V8.08704C12.039 8.03897 11.961 8.03897 11.913 8.08704V8.08704L9 11"
+                      stroke="#323232"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M3 15L3 16L3 19C3 20.1046 3.89543 21 5 21L19 21C20.1046 21 21 20.1046 21 19L21 16L21 15"
+                      stroke="#323232"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </Tooltip>
+              )}
+            </div>
+          ),
         }));
-        console.log(333, listMock);
-        setRecord(listMock);
-      })
-      .catch((err) => console.log(err));
+        setRecord(listInvoicesConverted);
+      });
+    }
+  }, [navigate, idExpense]);
+
+  useEffect(() => {
+    const column = COLUMN_INVOICE.map((el) => {
+      switch (el.key) {
+        case "_id":
+          el.width = 100;
+          break;
+        case "seller":
+          el.width = 200;
+          break;
+        case "tax_code":
+          el.width = 50;
+          break;
+        case "action":
+          el.width = 100;
+          break;
+        case "address":
+          el.width = 300;
+          break;
+        default:
+      }
+      return {
+        ...el,
+        render: (data) => {
+          console.log(data);
+          if (typeof data === "boolean") {
+            return data ? "Yes" : "No";
+          }
+          return data;
+        },
+      };
+    });
+    setColumnsRender(column);
   }, []);
 
   return (
@@ -114,7 +136,12 @@ export default function ListInvoices() {
           </Button>
         </Row>
       </div>
-      <Table dataSource={record} columns={columns} />;
+      <Table
+        dataSource={record}
+        columns={columnsRender}
+        key={(record) => record._id}
+      />
+      ;
     </div>
   );
 }

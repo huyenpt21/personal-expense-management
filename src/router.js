@@ -20,7 +20,15 @@ export default function RouterElement() {
           element: <ListInvoices />,
         },
         {
+          path: "/list-invoices/:idExpense",
+          element: <ListInvoices />,
+        },
+        {
           path: "/upload-invoice",
+          element: <UploadInvoice />,
+        },
+        {
+          path: "/upload-invoice/:idInvoice",
           element: <UploadInvoice />,
         },
       ],

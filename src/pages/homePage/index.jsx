@@ -1,77 +1,9 @@
-import { Button, Col, DatePicker, Input, Row, Table, Tooltip } from "antd";
-import { apiInstance } from "../../api";
-import { useEffect, useState } from "react";
+import { Button, Col, DatePicker, Row, Table, Tooltip } from "antd";
 import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const columnTable = [
-  {
-    title: "ID",
-    dataIndex: "id",
-    key: "id",
-  },
-  {
-    title: "Amount",
-    dataIndex: "amount",
-    key: "amount",
-  },
-  {
-    title: "Create At",
-    dataIndex: "createdAt",
-    key: "createdAt",
-  },
-  {
-    title: "Update At",
-    dataIndex: "updatedAt",
-    key: "updatedAt",
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    key: "action",
-  },
-];
-
-const mockData = [
-  {
-    _id: "6440b73180dce612a51003e5",
-    username: "nguyenminh@gmail.com",
-    month: 4,
-    year: 2022,
-    amount: 0,
-    invoices: [],
-    createdAt: "2023-04-20T03:53:21.657Z",
-    updatedAt: "2023-05-04T02:32:55.536Z",
-    __v: 0,
-  },
-  {
-    _id: "syd7sdjahdu",
-    username: "nguyenminh@gmail.com",
-    month: 4,
-    year: 2022,
-    amount: 0,
-    invoices: [],
-    createdAt: "2023-04-20T03:53:21.657Z",
-    updatedAt: "2023-05-04T02:32:55.536Z",
-    __v: 0,
-  },
-];
-
-const handleChange = (e) => {
-  const fileInput = document.getElementById("fileInput");
-  const file = fileInput.files[0];
-  const reader = new FileReader();
-
-  reader.addEventListener("load", () => {
-    // Base64 Data URL 👇
-    const body = {
-      base64_image: reader.result,
-    };
-    apiInstance.post("invoice/upload", body);
-  });
-
-  reader.readAsDataURL(file);
-};
+import { apiInstance } from "../../api";
+import { COLUMN_EXPENSE } from "../../helper";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -85,22 +17,26 @@ export default function HomePage() {
       .get("expense/get-all", { params: query })
       .then(({ data: listExpenses }) => {
         if (Array.isArray(listExpenses)) {
-          const filterValue = mockData.map((el) => {
+          const filterValue = listExpenses.map((el) => {
             return {
               key: el._id,
               id: el._id,
+              month: el.month,
               amount: el.amount,
               createdAt: dayjs(el.createdAt).format("DD/MM/YYYY"),
               updatedAt: dayjs(el.updatedAt).format("DD/MM/YYYY"),
               action: (
                 <div className="action__icon">
-                  <Tooltip title="View invoice">
+                  <Tooltip title="View detail">
                     <svg
                       width="22px"
                       height="22px"
                       viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      onClick={() => {
+                        navigate(`/list-invoices/${el._id}`);
+                      }}
                     >
                       <circle
                         cx="12"
@@ -198,6 +134,14 @@ export default function HomePage() {
             <Button
               type="primary"
               onClick={() => {
+                navigate("/upload-invoice");
+              }}
+            >
+              Upload
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
                 localStorage.removeItem("access_token");
                 navigate("/");
               }}
@@ -217,11 +161,7 @@ export default function HomePage() {
           </Col>
         </Row>
       </div>
-      <Table dataSource={record} columns={columnTable} />
-
-      <div>
-        <input id="fileInput" type="file" onChange={handleChange} />
-      </div>
+      <Table dataSource={record} columns={COLUMN_EXPENSE} />
     </div>
   );
 }
