@@ -24,16 +24,17 @@ export default function UploadInvoice() {
           data.createdAt = dayjs(data?.createdAt).format("DD/MM/YYYY");
           data.updatedAt = dayjs(data?.updatedAt).format("DD/MM/YYYY");
           form.setFieldsValue(data);
-          setImageUrl(data?.base64_image);
+          setImageUrl(`data:image/jpeg;base64,${data?.base64_image}`);
         }
       });
     }
   }, [form, idInvoice]);
-  const handleChange = (info) => {
+  const handleUploadImage = (info) => {
     getBase64(info.file.originFileObj, async (url) => {
+      const convertImage = url.replace("data:image/jpeg;base64,", "");
       setImageUrl(url);
       const response = await apiInstance.post("invoice/upload", {
-        base64_image: url,
+        base64_image: convertImage,
       });
       if (response?.data && response?.data?._id) {
         setImageId(response.data._id);
@@ -60,38 +61,44 @@ export default function UploadInvoice() {
   const handleExtractInvoice = () => {
     apiInstance
       .post("invoice/extract", {
-        _id: imageId,
+        _id: imageId || idInvoice,
       })
-      .then((res) => {
-        console.log(res);
+      .then(({ data }) => {
+        form.setFieldsValue(data);
       });
   };
 
   const handleAddToExpense = () => {
     apiInstance
-      .post("/invoice/add-to-expense", {
-        _id: idInvoice,
+      .post("invoice/add-to-expense", {
+        _id: imageId || idInvoice,
       })
       .then((res) => {
         console.log(res);
       });
   };
 
+  const handleDeleteInvoice = () => {
+    apiInstance.post("invoice/delete", {
+      _id: imageId || idInvoice,
+    });
+  };
+
   return (
     <>
-      <div className="container">
+      <div className="container__upload">
         <Row>
-          <Col span={8}>
+          <Col span={14}>
             <Row className="upload__button">
               <Button
                 type="primary"
                 onClick={handleExtractInvoice}
-                disabled={!imageId}
+                disabled={!!form.getFieldValue("isExtracted")}
               >
                 Extract
               </Button>
               <Button danger type="primary" onClick={handleDeleteImage}>
-                Delete
+                Delete Image
               </Button>
             </Row>
             {!imageUrl && (
@@ -99,7 +106,7 @@ export default function UploadInvoice() {
                 listType="picture-card"
                 className="avatar-uploader"
                 showUploadList={false}
-                onChange={handleChange}
+                onChange={handleUploadImage}
               >
                 <div
                   style={{
@@ -110,9 +117,9 @@ export default function UploadInvoice() {
                 </div>
               </Upload>
             )}
-            {imageUrl && <Image width="20vw" src={imageUrl} />}
+            {imageUrl && <Image width="40vw" src={imageUrl} />}
           </Col>
-          <Col span={16}>
+          <Col span={10}>
             <Row style={{ marginBottom: "12px" }}>
               <h2>Invoice Information</h2>
             </Row>
@@ -131,7 +138,7 @@ export default function UploadInvoice() {
               </Row>
               <Row gutter={24}>
                 <Col span={12}>
-                  <Form.Item name="seller" label="Seller">
+                  <Form.Item name="date" label="Date">
                     <Input />
                   </Form.Item>
                 </Col>
@@ -143,24 +150,12 @@ export default function UploadInvoice() {
               </Row>
               <Row gutter={24}>
                 <Col span={12}>
-                  <Form.Item name="date" label="Date">
+                  <Form.Item name="seller" label="Seller">
                     <Input />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item name="address" label="Address">
-                    <Input />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item name="createdAt" label="Create at">
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item name="updatedAt" label="Update at">
                     <Input />
                   </Form.Item>
                 </Col>
@@ -187,7 +182,19 @@ export default function UploadInvoice() {
                 <Button type="primary">Update</Button>
               </Col>
               <Col>
-                <Button type="primary" onClick={handleAddToExpense}>
+                <Button danger type="primary" onClick={handleDeleteInvoice}>
+                  Delete Invoice
+                </Button>
+              </Col>
+              <Col>
+                <Button
+                  type="primary"
+                  onClick={handleAddToExpense}
+                  // disabled={
+                  //   form.getFieldValue("isExpensed") ||
+                  //   !form.getFieldValue("isExtracted")
+                  // }
+                >
                   Add to Expense
                 </Button>
               </Col>

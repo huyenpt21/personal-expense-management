@@ -17,7 +17,12 @@ code {
 }
 
 .container {
-  max-width: 70vw;
+  max-width: 80vw;
+  margin: 40px auto 0;
+}
+
+.container__upload {
+  max-width: 80vw;
   margin: 40px auto 0;
 }
 

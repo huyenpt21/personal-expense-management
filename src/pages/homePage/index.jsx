@@ -9,8 +9,8 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [record, setRecord] = useState([]);
   const [query, setQuery] = useState({
-    month: null,
-    year: null,
+    month: dayjs().month() + 1,
+    year: dayjs().year(),
   });
   useEffect(() => {
     apiInstance
@@ -35,7 +35,10 @@ export default function HomePage() {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                       onClick={() => {
-                        navigate(`/list-invoices/${el._id}`);
+                        navigate({
+                          pathname: `/list-invoices/${el._id}`,
+                          search: `month=${el?.month}&year=${el.year}`,
+                        });
                       }}
                     >
                       <circle
