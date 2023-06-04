@@ -68,3 +68,15 @@ code {
 .action__icon svg {
   cursor: pointer;
 }
+
+.modal-confirm-content {
+  margin: 12px auto 32px;
+  display: flex;
+  font-size: 22px;
+  font-weight: 500;
+  justify-content: center;
+}
+
+.ant-modal-footer {
+  text-align: center !important;
+}

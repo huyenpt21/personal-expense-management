@@ -83,3 +83,9 @@ export const COLUMN_INVOICE = [
     key: "action",
   },
 ];
+export const openNotification = (api, message) => {
+  api.success({
+    message: message,
+    duration: 2,
+  });
+};

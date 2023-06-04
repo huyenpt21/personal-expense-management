@@ -1,8 +1,19 @@
-import { Button, Col, Form, Image, Input, Row, Upload } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Image,
+  Input,
+  Row,
+  Upload,
+  notification,
+} from "antd";
+import dayjs from "dayjs";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiInstance } from "../../api";
-import dayjs from "dayjs";
+import { openNotification } from "../../helper";
+import ConfirmModal from "../confirmModal";
 
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
@@ -11,11 +22,15 @@ const getBase64 = (img, callback) => {
 };
 
 export default function UploadInvoice() {
+  const [api, contextHolder] = notification.useNotification();
+
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { idInvoice } = useParams();
   const [imageUrl, setImageUrl] = useState();
   const [imageId, setImageId] = useState(null);
+
+  const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
 
   useEffect(() => {
     if (idInvoice) {
@@ -25,6 +40,7 @@ export default function UploadInvoice() {
           data.updatedAt = dayjs(data?.updatedAt).format("DD/MM/YYYY");
           form.setFieldsValue(data);
           setImageUrl(`data:image/jpeg;base64,${data?.base64_image}`);
+          setImageId(data._id);
         }
       });
     }
@@ -45,6 +61,7 @@ export default function UploadInvoice() {
   const handleDeleteImage = () => {
     setImageUrl(null);
     setImageId(null);
+    setIsShowModalConfirm(false);
     apiInstance
       .post("/invoice/delete", {
         _id: imageId,
@@ -54,6 +71,7 @@ export default function UploadInvoice() {
         if (status === 200) {
           setImageUrl(null);
           setImageId(null);
+          openNotification(api, "Delete image successfully!");
         }
       });
   };
@@ -63,8 +81,11 @@ export default function UploadInvoice() {
       .post("invoice/extract", {
         _id: imageId || idInvoice,
       })
-      .then(({ data }) => {
-        form.setFieldsValue(data);
+      .then(({ data, status }) => {
+        if (status === 200) {
+          openNotification(api, "Extract invoice successfully!");
+          form.setFieldsValue(data);
+        }
       });
   };
 
@@ -73,19 +94,28 @@ export default function UploadInvoice() {
       .post("invoice/add-to-expense", {
         _id: imageId || idInvoice,
       })
-      .then((res) => {
-        console.log(res);
+      .then(({ status }) => {
+        if (status === 200) {
+          openNotification(api, "Add invoice to expense successfully!");
+        }
       });
   };
 
   const handleDeleteInvoice = () => {
-    apiInstance.post("invoice/delete", {
-      _id: imageId || idInvoice,
-    });
+    apiInstance
+      .post("invoice/delete", {
+        _id: imageId || idInvoice,
+      })
+      .then(({ status }) => {
+        if (status === 200) {
+          openNotification(api, "Delete invoice successfully!");
+        }
+      });
   };
 
   return (
     <>
+      {contextHolder}
       <div className="container__upload">
         <Row>
           <Col span={14}>
@@ -93,11 +123,18 @@ export default function UploadInvoice() {
               <Button
                 type="primary"
                 onClick={handleExtractInvoice}
-                disabled={!!form.getFieldValue("isExtracted")}
+                disabled={!!form.getFieldValue("isExtracted") || !imageId}
               >
                 Extract
               </Button>
-              <Button danger type="primary" onClick={handleDeleteImage}>
+              <Button
+                danger
+                type="primary"
+                onClick={() => {
+                  setIsShowModalConfirm(true);
+                }}
+                disabled={!imageUrl}
+              >
                 Delete Image
               </Button>
             </Row>
@@ -179,10 +216,17 @@ export default function UploadInvoice() {
               }}
             >
               <Col>
-                <Button type="primary">Update</Button>
+                <Button type="primary" disabled={!form.getFieldValue("_id")}>
+                  Update
+                </Button>
               </Col>
               <Col>
-                <Button danger type="primary" onClick={handleDeleteInvoice}>
+                <Button
+                  danger
+                  type="primary"
+                  onClick={handleDeleteInvoice}
+                  disabled={!imageId}
+                >
                   Delete Invoice
                 </Button>
               </Col>
@@ -190,10 +234,10 @@ export default function UploadInvoice() {
                 <Button
                   type="primary"
                   onClick={handleAddToExpense}
-                  // disabled={
-                  //   form.getFieldValue("isExpensed") ||
-                  //   !form.getFieldValue("isExtracted")
-                  // }
+                  disabled={
+                    form.getFieldValue("isExpensed") ||
+                    !form.getFieldValue("isExtracted")
+                  }
                 >
                   Add to Expense
                 </Button>
@@ -212,6 +256,13 @@ export default function UploadInvoice() {
           </Col>
         </Row>
       </div>
+      {isShowModalConfirm && (
+        <ConfirmModal
+          open={isShowModalConfirm}
+          onOk={handleDeleteImage}
+          onCancel={() => setIsShowModalConfirm(false)}
+        />
+      )}
     </>
   );
 }
