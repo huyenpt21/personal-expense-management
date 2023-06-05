@@ -1,9 +1,9 @@
 import { Button, Form, Input } from "antd";
+import axios from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { apiInstance } from "../../api";
 import styles from "./index.module.scss";
-import axios from "axios";
 
 export default function LoginPage({ isLogin = true }) {
   const navigation = useNavigate();

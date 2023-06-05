@@ -1,13 +1,24 @@
-import { Column } from "@ant-design/charts";
 import { Button, Col, DatePicker, Row } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiInstance } from "../../api";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [record, setRecord] = useState([]);
+  const [record, setRecord] = useState([
+    20, 30, 50, 12, 34, 20, 20, 65, 37, 76, 56, 29,
+  ]);
   const [query, setQuery] = useState({
     year: dayjs().year(),
   });
@@ -39,17 +50,53 @@ export default function HomePage() {
     });
   };
 
-  const config = {
-    data: record,
-    xField: "month",
-    yField: "amount",
-    label: {
-      position: "middle",
-      style: {
-        fill: "#FFF",
-        opacity: 1,
+  Chart.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
+
+  const labels = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "top",
+      },
+      title: {
+        display: true,
+        text: `List expense in ${query.year}`,
       },
     },
+  };
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: "Expense by month",
+        data: record,
+        backgroundColor: "rgba(75, 192, 192, 0.3)",
+        title: "hi",
+      },
+    ],
   };
 
   return (
@@ -91,8 +138,18 @@ export default function HomePage() {
             <DatePicker picker="year" onChange={handleChangeYear} />
           </Col>
         </Row>
+        <Row
+          style={{ height: "70vh", width: "80vw", justifyContent: "center" }}
+        >
+          <Bar
+            options={options}
+            data={data}
+            onClick={(data) => {
+              console.log("click", data);
+            }}
+          />
+        </Row>
       </div>
-      <Column {...config} />
     </div>
   );
 }
