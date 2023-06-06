@@ -1,9 +1,9 @@
 import { Button, Col, DatePicker, Row } from "antd";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiInstance } from "../../api";
-import { Bar } from "react-chartjs-2";
+import { Bar, getElementAtEvent } from "react-chartjs-2";
 import {
   Chart,
   CategoryScale,
@@ -16,9 +16,9 @@ import {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [record, setRecord] = useState([
-    20, 30, 50, 12, 34, 20, 20, 65, 37, 76, 56, 29,
-  ]);
+  const barRef = useRef();
+  const [record, setRecord] = useState([]);
+  const [dataExpense, setDataExpense] = useState([]);
   const [query, setQuery] = useState({
     year: dayjs().year(),
   });
@@ -27,17 +27,15 @@ export default function HomePage() {
       .get("expense/get-all", { params: query })
       .then(({ data: listExpenses }) => {
         if (Array.isArray(listExpenses)) {
+          setDataExpense(listExpenses);
           const filterValue = listExpenses.sort(
             (prev, post) => prev.month < post.month
           );
-          const fullMonthArray = Array.from(Array(12).keys()).map(
-            (el, index) => ({
-              month: el + 1,
-              amount: filterValue[index]?.amount ?? 1230376,
-            })
-          );
+          const fullMonthArray = Array(12).fill(0);
+          for (const expense of filterValue) {
+            fullMonthArray[expense.month - 1] = expense.amount;
+          }
           setRecord(fullMonthArray);
-          console.log(fullMonthArray);
         }
       });
   }, [navigate, query]);
@@ -73,6 +71,21 @@ export default function HomePage() {
     "November",
     "December",
   ];
+
+  const handleClickChart = (event) => {
+    const indexColumnClick = getElementAtEvent(barRef.current, event)[0].index;
+    const expenseClicked = dataExpense.find(
+      (el) => el?.month === indexColumnClick + 1
+    );
+
+    if (expenseClicked?._id) {
+      navigate({
+        pathname: `/list-invoices/${expenseClicked?._id}`,
+        search: `month=${expenseClicked?.month}&year=${expenseClicked?.year}`,
+      });
+    }
+    console.log(expenseClicked);
+  };
 
   const options = {
     responsive: true,
@@ -135,18 +148,21 @@ export default function HomePage() {
         <Row>
           <Col span={8}>
             <div>Year:</div>
-            <DatePicker picker="year" onChange={handleChangeYear} />
+            <DatePicker
+              picker="year"
+              onChange={handleChangeYear}
+              defaultValue={dayjs("2023-01-01", "YYYY-MM-DD")}
+            />
           </Col>
         </Row>
         <Row
           style={{ height: "70vh", width: "80vw", justifyContent: "center" }}
         >
           <Bar
+            ref={barRef}
             options={options}
             data={data}
-            onClick={(data) => {
-              console.log("click", data);
-            }}
+            onClick={handleClickChart}
           />
         </Row>
       </div>

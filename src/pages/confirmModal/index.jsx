@@ -9,7 +9,8 @@ export default function ConfirmModal({ open, onOk, onCancel, textContent }) {
       onCancel={onCancel}
       okText="Sure, Delete!"
       cancelText="Cancel"
-      cancelButtonProps={{ danger: true, type: "primary" }}
+      cancelButtonProps={{ type: "primary" }}
+      okButtonProps={{ danger: true, type: "primary" }}
       closeIcon={<></>}
     >
       <div className="modal-confirm-content">

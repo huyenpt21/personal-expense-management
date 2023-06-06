@@ -103,11 +103,9 @@ export default function ListInvoices() {
   useEffect(() => {
     if (idExpense) {
       apiInstance
-        .get("/expense/get-invoice-in-expense", {
-          params: {
-            month: Number(searchParams.get("month")) ?? dayjs().month(),
-            year: Number(searchParams.get("year")) ?? dayjs().year(),
-          },
+        .post("/expense/get-invoice-in-expense", {
+          month: Number(searchParams.get("month")) ?? dayjs().month(),
+          year: Number(searchParams.get("year")) ?? dayjs().year(),
         })
         .then(({ status, data }) => {
           if (status === 200) {
