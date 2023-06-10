@@ -24,7 +24,7 @@ export default function HomePage() {
   });
   useEffect(() => {
     apiInstance
-      .get("expense/get-all", { params: query })
+      .post("expense/get-year", query)
       .then(({ data: listExpenses }) => {
         if (Array.isArray(listExpenses)) {
           setDataExpense(listExpenses);
@@ -73,7 +73,7 @@ export default function HomePage() {
   ];
 
   const handleClickChart = (event) => {
-    const indexColumnClick = getElementAtEvent(barRef.current, event)[0].index;
+    const indexColumnClick = getElementAtEvent(barRef.current, event)[0]?.index;
     const expenseClicked = dataExpense.find(
       (el) => el?.month === indexColumnClick + 1
     );
@@ -84,7 +84,6 @@ export default function HomePage() {
         search: `month=${expenseClicked?.month}&year=${expenseClicked?.year}`,
       });
     }
-    console.log(expenseClicked);
   };
 
   const options = {

@@ -53,7 +53,7 @@ export const COLUMN_INVOICE = [
     key: "serial",
   },
   {
-    title: "Invoice",
+    title: "Invoice number",
     dataIndex: "invoice_number",
     key: "invoice_number",
   },
@@ -83,8 +83,8 @@ export const COLUMN_INVOICE = [
     key: "action",
   },
 ];
-export const openNotification = (api, message) => {
-  api.success({
+export const openNotification = (api, message, status = "success") => {
+  api[status]({
     message: message,
     duration: 2,
   });

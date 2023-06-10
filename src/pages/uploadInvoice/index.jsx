@@ -5,6 +5,7 @@ import {
   Image,
   Input,
   Row,
+  Spin,
   Upload,
   notification,
 } from "antd";
@@ -23,14 +24,21 @@ const getBase64 = (img, callback) => {
 
 export default function UploadInvoice() {
   const [api, contextHolder] = notification.useNotification();
-
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { idInvoice } = useParams();
-  const [imageUrl, setImageUrl] = useState();
+  const [loading, setLoading] = useState(false);
+
+  const [imageUrl, setImageUrl] = useState(null);
   const [imageId, setImageId] = useState(null);
+  const [formValue, setFormValue] = useState({
+    isExpensed: false,
+    isExtracted: false,
+  });
 
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
+  const [isShowModalConfirmDeleteInvoice, setIsShowModalConfirmDeleteInvoice] =
+    useState(false);
 
   useEffect(() => {
     if (idInvoice) {
@@ -39,6 +47,11 @@ export default function UploadInvoice() {
           data.createdAt = dayjs(data?.createdAt).format("DD/MM/YYYY");
           data.updatedAt = dayjs(data?.updatedAt).format("DD/MM/YYYY");
           form.setFieldsValue(data);
+          setFormValue({
+            ...data,
+            isExpensed: data?.isExpensed,
+            isExtracted: data?.isExtracted,
+          });
           setImageUrl(`data:image/jpeg;base64,${data?.base64_image}`);
           setImageId(data._id);
         }
@@ -77,15 +90,25 @@ export default function UploadInvoice() {
   };
 
   const handleExtractInvoice = () => {
+    setLoading(true);
     apiInstance
       .post("invoice/extract", {
         _id: imageId || idInvoice,
       })
       .then(({ data, status }) => {
         if (status === 200) {
-          openNotification(api, "Extract invoice successfully!");
-          form.setFieldsValue(data);
+          setLoading(false);
+          if (data?.isExtracted) {
+            openNotification(api, "Extract invoice successfully!");
+            setFormValue({ isExtracted: true, isExpensed: false });
+            form.setFieldsValue(data);
+          } else {
+            openNotification(api, "Extract invoice faild!", "error");
+          }
         }
+      })
+      .catch(() => {
+        setLoading(false);
       });
   };
 
@@ -96,6 +119,8 @@ export default function UploadInvoice() {
       })
       .then(({ status }) => {
         if (status === 200) {
+          setLoading(false);
+          setFormValue({ isExtracted: true, isExpensed: true });
           openNotification(api, "Add invoice to expense successfully!");
         }
       });
@@ -108,22 +133,40 @@ export default function UploadInvoice() {
       })
       .then(({ status }) => {
         if (status === 200) {
+          setIsShowModalConfirmDeleteInvoice(false);
           openNotification(api, "Delete invoice successfully!");
+          navigate("/upload-invoice");
+          form.resetFields();
         }
       });
   };
 
+  const handleUpdateInvoice = () => {
+    const updatedFormValue = form.getFieldsValue();
+    apiInstance
+      .post("/invoice/update", { ...formValue, ...updatedFormValue })
+      .then(({ status }) => {
+        if (status === 200) {
+          openNotification(api, "Update invoice successfully!");
+        }
+      })
+      .catch((error) => {
+        openNotification(api, "Update invoice faild!", "error");
+      });
+  };
   return (
     <>
       {contextHolder}
       <div className="container__upload">
-        <Row>
-          <Col span={14}>
+        <Row gutter={40}>
+          <Col span={12}>
             <Row className="upload__button">
               <Button
                 type="primary"
                 onClick={handleExtractInvoice}
-                disabled={!!form.getFieldValue("isExtracted") || !imageId}
+                disabled={
+                  !!form.getFieldValue("isExtracted") || !imageId || loading
+                }
               >
                 Extract
               </Button>
@@ -133,7 +176,7 @@ export default function UploadInvoice() {
                 onClick={() => {
                   setIsShowModalConfirm(true);
                 }}
-                disabled={!imageUrl}
+                disabled={!imageUrl || loading}
               >
                 Delete Image
               </Button>
@@ -154,9 +197,22 @@ export default function UploadInvoice() {
                 </div>
               </Upload>
             )}
-            {imageUrl && <Image width="40vw" src={imageUrl} />}
+            {!loading && imageUrl && <Image width="40vw" src={imageUrl} />}
+            {loading && (
+              <div
+                style={{
+                  width: "200px",
+                  height: "300px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Spin />
+              </div>
+            )}
           </Col>
-          <Col span={10}>
+          <Col span={12}>
             <Row style={{ marginBottom: "12px" }}>
               <h2>Invoice Information</h2>
             </Row>
@@ -206,6 +262,105 @@ export default function UploadInvoice() {
                   {form.getFieldValue("isExtracted") ? "Yes" : "No"}
                 </Col>
               </Row>
+              <Form.List name="table">
+                {(fields, { add, remove }, { errors }) => {
+                  return (
+                    <>
+                      {fields.map(({ key, name }) => (
+                        <Row key={key} gutter={12}>
+                          <Col span={6}>
+                            <Form.Item
+                              key={key}
+                              name={[name, "amount"]}
+                              label="Amount"
+                            >
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                          <Col span={4}>
+                            <Form.Item
+                              key={key}
+                              name={[name, "tax_rate"]}
+                              label="Tax rate"
+                            >
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                          <Col span={12}>
+                            <Form.Item
+                              key={key}
+                              name={[name, "description"]}
+                              label="Description"
+                            >
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                          <Col
+                            span={2}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <svg
+                              width="22px"
+                              height="22px"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              onClick={() => remove(name)}
+                            >
+                              <path
+                                d="M10 12V17"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M14 12V17"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M4 7H20"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                              <path
+                                d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+                                stroke="#000000"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </Col>
+                        </Row>
+                      ))}
+                      <Col span={24}>
+                        <Form.Item>
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            style={{ width: "100%" }}
+                          >
+                            Add field
+                          </Button>
+                          <Form.ErrorList errors={errors} />
+                        </Form.Item>
+                      </Col>
+                    </>
+                  );
+                }}
+              </Form.List>
             </Form>
 
             <Row
@@ -216,7 +371,11 @@ export default function UploadInvoice() {
               }}
             >
               <Col>
-                <Button type="primary" disabled={!form.getFieldValue("_id")}>
+                <Button
+                  type="primary"
+                  disabled={!form.getFieldValue("_id") || formValue?.isExpensed}
+                  onClick={handleUpdateInvoice}
+                >
                   Update
                 </Button>
               </Col>
@@ -224,8 +383,10 @@ export default function UploadInvoice() {
                 <Button
                   danger
                   type="primary"
-                  onClick={handleDeleteInvoice}
-                  disabled={!imageId}
+                  onClick={() => {
+                    setIsShowModalConfirmDeleteInvoice(true);
+                  }}
+                  disabled={!form.getFieldValue("isExtracted")}
                 >
                   Delete Invoice
                 </Button>
@@ -234,10 +395,7 @@ export default function UploadInvoice() {
                 <Button
                   type="primary"
                   onClick={handleAddToExpense}
-                  disabled={
-                    form.getFieldValue("isExpensed") ||
-                    !form.getFieldValue("isExtracted")
-                  }
+                  disabled={formValue?.isExpensed || !formValue?.isExtracted}
                 >
                   Add to Expense
                 </Button>
@@ -261,6 +419,13 @@ export default function UploadInvoice() {
           open={isShowModalConfirm}
           onOk={handleDeleteImage}
           onCancel={() => setIsShowModalConfirm(false)}
+        />
+      )}
+      {isShowModalConfirmDeleteInvoice && (
+        <ConfirmModal
+          open={isShowModalConfirmDeleteInvoice}
+          onOk={handleDeleteInvoice}
+          onCancel={() => setIsShowModalConfirmDeleteInvoice(false)}
         />
       )}
     </>
