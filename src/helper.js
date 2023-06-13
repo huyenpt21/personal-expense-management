@@ -68,12 +68,12 @@ export const COLUMN_INVOICE = [
     key: "address",
   },
   {
-    title: "Is Expensed",
+    title: "Expensed",
     dataIndex: "isExpensed",
     key: "isExpensed",
   },
   {
-    title: "Is Extracted",
+    title: "Extracted",
     dataIndex: "isExtracted",
     key: "isExtracted",
   },

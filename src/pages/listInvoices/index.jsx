@@ -13,6 +13,7 @@ export default function ListInvoices() {
   const [columnsRender, setColumnsRender] = useState([]);
   const [query, setQuery] = useState({ page: 1 });
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+  const [loadingList, setLoadingList] = useState(false);
   const handleRenderListInvoice = useCallback(
     (listInvoices) => {
       const listInvoicesConverted = listInvoices.map((el) => ({
@@ -104,6 +105,7 @@ export default function ListInvoices() {
 
   useEffect(() => {
     if (idExpense) {
+      setLoadingList(true);
       apiInstance
         .get("/expense/get-invoice-in-expense", {
           params: {
@@ -112,21 +114,26 @@ export default function ListInvoices() {
           },
         })
         .then(({ status, data }) => {
+          setLoadingList(false);
           if (status === 200) {
             handleRenderListInvoice(data);
           }
         });
-    } else {
-      apiInstance
-        .get("invoice/get-all", { params: query })
-        .then(({ status, data: { data: listInvoices, totalPage } }) => {
-          if (status === 200) {
-            handleRenderListInvoice(listInvoices);
-            setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
-          }
-        });
     }
-  }, [navigate, idExpense, searchParams, handleRenderListInvoice, query]);
+  }, [idExpense, searchParams, handleRenderListInvoice]);
+
+  useEffect(() => {
+    setLoadingList(true);
+    apiInstance
+      .get("invoice/get-all", { params: query })
+      .then(({ status, data: { data: listInvoices, totalPage } }) => {
+        setLoadingList(false);
+        if (status === 200) {
+          handleRenderListInvoice(listInvoices);
+          setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
+        }
+      });
+  }, [handleRenderListInvoice, query]);
 
   useEffect(() => {
     const column = COLUMN_INVOICE.map((el) => {
@@ -139,6 +146,12 @@ export default function ListInvoices() {
           break;
         case "tax_code":
           el.width = 50;
+          break;
+        case "isExpensed":
+          el.width = 100;
+          break;
+        case "isExtracted":
+          el.width = 100;
           break;
         case "invoice_number":
           el.width = 100;
@@ -184,8 +197,8 @@ export default function ListInvoices() {
           setQuery({ page: paginationSettings?.current });
         }}
         scroll={{ x: true, y: "65vh" }}
+        loading={loadingList}
       />
-      ;
     </div>
   );
 }
