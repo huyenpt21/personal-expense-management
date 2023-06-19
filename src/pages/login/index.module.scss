@@ -6,22 +6,33 @@
   align-items: center;
   justify-content: center;
   .main__section {
-    width: 50%;
-    height: 65%;
+    width: 64%;
+    height: 64%;
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 0 12px 12px rgba(0, 0, 0, 0.02);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
     column-gap: 100px;
     padding: 0 20px 0;
+    background-image: url("../../image/app_quan_ly_chi_tieu_1_2d01c64e42.jpg");
+    background-size: cover;
+    .title {
+      position: absolute;
+      top: 5%;
+      left: 5%;
+      font-size: 40px;
+      max-width: 35%;
+      text-align: center;
+    }
     .content {
-      width: 40%;
+      position: absolute;
+      top: 30%;
+      left: 5%;
+      width: 30%;
       margin-top: -20px;
       .header {
-        margin-bottom: 44px;
-        font-size: 48px;
+        margin-bottom: 24px;
+        font-size: 36px;
         color: rgba(0, 0, 0, 0.8);
       }
       .btn {

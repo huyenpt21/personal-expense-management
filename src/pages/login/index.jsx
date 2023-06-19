@@ -16,10 +16,11 @@ export default function LoginPage({ isLogin = true }) {
         .then(({ status, data }) => {
           openNotification(api, "Login successfully!");
           if (status === 200) {
-            console.log(status, "Login successfully!", data);
-            localStorage.setItem("access_token", data?.accessToken);
-            apiInstance.defaults.headers.Authorization = data?.accessToken;
-            navigation("/");
+            setTimeout(() => {
+              localStorage.setItem("access_token", data?.accessToken);
+              apiInstance.defaults.headers.Authorization = data?.accessToken;
+              navigation("/");
+            }, 700);
           }
         })
         .catch((error) => {
@@ -29,9 +30,11 @@ export default function LoginPage({ isLogin = true }) {
       apiInstance
         .post("auth/register", values)
         .then(({ status }) => {
+          openNotification(api, "Register successfully!");
           if (status === 200) {
-            openNotification(api, "Register successfully!");
-            navigation("/");
+            setTimeout(() => {
+              navigation("/");
+            }, 700);
           }
         })
         .catch((error) => {
@@ -49,11 +52,12 @@ export default function LoginPage({ isLogin = true }) {
   };
   return (
     <>
+      {contextHolder}
       <div className={styles.container}>
-        {contextHolder}
         <div className={styles.main__section}>
+          <h1 className={styles.title}>Business Expense Management</h1>
           <div className={styles.content}>
-            <h1 className={styles.header}>{isLogin ? "Login" : "Register"}</h1>
+            <h2 className={styles.header}>{isLogin ? "Login" : "Register"}</h2>
             <Form layout="vertical" onFinish={handleSubmitForm}>
               <Form.Item
                 label="Username"
@@ -82,12 +86,6 @@ export default function LoginPage({ isLogin = true }) {
             <p className={styles.login__link} onClick={handleNavigateLogin}>
               {isLogin ? "Do not have an account?" : "Already have an account?"}
             </p>
-          </div>
-          <div className={styles.image}>
-            <img
-              src="https://colorlib.com/etc/regform/colorlib-regform-7/images/signup-image.jpg"
-              alt=""
-            />
           </div>
         </div>
       </div>

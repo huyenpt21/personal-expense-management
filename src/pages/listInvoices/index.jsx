@@ -123,17 +123,19 @@ export default function ListInvoices() {
   }, [idExpense, searchParams, handleRenderListInvoice]);
 
   useEffect(() => {
-    setLoadingList(true);
-    apiInstance
-      .get("invoice/get-all", { params: query })
-      .then(({ status, data: { data: listInvoices, totalPage } }) => {
-        setLoadingList(false);
-        if (status === 200) {
-          handleRenderListInvoice(listInvoices);
-          setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
-        }
-      });
-  }, [handleRenderListInvoice, query]);
+    if (!idExpense) {
+      setLoadingList(true);
+      apiInstance
+        .get("invoice/get-all", { params: query })
+        .then(({ status, data: { data: listInvoices, totalPage } }) => {
+          setLoadingList(false);
+          if (status === 200) {
+            handleRenderListInvoice(listInvoices);
+            setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
+          }
+        });
+    }
+  }, [handleRenderListInvoice, query, idExpense]);
 
   useEffect(() => {
     const column = COLUMN_INVOICE.map((el) => {
