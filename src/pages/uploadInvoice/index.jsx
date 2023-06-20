@@ -284,13 +284,15 @@ export default function UploadInvoice() {
                       </Form.Item>
                     </Col>
                     <Col span={12}>
-                      <Tag
-                        color={
-                          form.getFieldValue("isExtracted") ? "green" : "red"
-                        }
-                      >
-                        Extracted
-                      </Tag>
+                      <Form.Item>
+                        <Tag
+                          color={
+                            form.getFieldValue("isExtracted") ? "green" : "red"
+                          }
+                        >
+                          Extracted
+                        </Tag>
+                      </Form.Item>
                     </Col>
                   </Row>
                   <Form.List name="table">
