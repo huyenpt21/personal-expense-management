@@ -144,16 +144,16 @@ export default function ListInvoices() {
           el.width = 100;
           break;
         case "seller":
-          el.width = 200;
+          el.width = 150;
           break;
         case "tax_code":
           el.width = 50;
           break;
         case "isExpensed":
-          el.width = 100;
+          el.width = 150;
           break;
         case "isExtracted":
-          el.width = 100;
+          el.width = 150;
           break;
         case "invoice_number":
           el.width = 100;

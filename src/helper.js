@@ -78,7 +78,7 @@ export const COLUMN_INVOICE = [
     key: "isExtracted",
   },
   {
-    title: "Action",
+    title: "",
     dataIndex: "action",
     key: "action",
   },
