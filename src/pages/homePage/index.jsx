@@ -140,7 +140,7 @@ export default function HomePage() {
                 navigate("/");
               }}
             >
-              Logout
+              Log out
             </Button>
           </Row>
         </Row>
