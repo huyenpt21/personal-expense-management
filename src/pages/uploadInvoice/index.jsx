@@ -147,7 +147,11 @@ export default function UploadInvoice() {
   const handleUpdateInvoice = () => {
     const updatedFormValue = form.getFieldsValue();
     apiInstance
-      .post("/invoice/update", { ...formValue, ...updatedFormValue })
+      .post("/invoice/update", {
+        ...formValue,
+        ...updatedFormValue,
+        _id: imageId || idInvoice,
+      })
       .then(({ status }) => {
         if (status === 200) {
           openNotification(api, "Update invoice successfully!");
