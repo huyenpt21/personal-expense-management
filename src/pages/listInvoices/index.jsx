@@ -195,7 +195,6 @@ export default function ListInvoices() {
         key={(record) => record._id}
         pagination={pagination}
         onChange={(paginationSettings) => {
-          console.log(444, paginationSettings);
           setPagination(paginationSettings);
           setQuery({
             page: paginationSettings?.current,
