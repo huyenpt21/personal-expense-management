@@ -11,7 +11,7 @@ export default function ListInvoices() {
   const [searchParams] = useSearchParams();
   const [record, setRecord] = useState([]);
   const [columnsRender, setColumnsRender] = useState([]);
-  const [query, setQuery] = useState({ page: 1 });
+  const [query, setQuery] = useState({ page: 1, limit: 10 });
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const [loadingList, setLoadingList] = useState(false);
   const handleRenderListInvoice = useCallback(
@@ -195,11 +195,16 @@ export default function ListInvoices() {
         key={(record) => record._id}
         pagination={pagination}
         onChange={(paginationSettings) => {
+          console.log(444, paginationSettings);
           setPagination(paginationSettings);
-          setQuery({ page: paginationSettings?.current });
+          setQuery({
+            page: paginationSettings?.current,
+            limit: paginationSettings?.pageSize,
+          });
         }}
         scroll={{ x: true, y: "65vh" }}
         loading={loadingList}
+        showSizeChanger={false}
       />
     </div>
   );
