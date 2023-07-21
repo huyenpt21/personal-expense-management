@@ -83,6 +83,9 @@ export default function ListSellers() {
         case "action":
           el.width = 80;
           break;
+        case "total":
+          el.width = 100;
+          break;
         case "address":
           el.width = 500;
           break;

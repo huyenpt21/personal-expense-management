@@ -162,10 +162,10 @@ export default function ListInvoices() {
           el.width = 130;
           break;
         case "isExpensed":
-          el.width = 120;
+          el.width = 150;
           break;
         case "isExtracted":
-          el.width = 120;
+          el.width = 150;
           break;
         case "invoice_number":
           el.width = 100;
@@ -175,6 +175,9 @@ export default function ListInvoices() {
           break;
         case "address":
           el.width = 400;
+          break;
+        case "total":
+          el.width = 100;
           break;
         default:
       }
