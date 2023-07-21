@@ -80,7 +80,7 @@ export default function HomePage() {
 
     if (expenseClicked?._id) {
       navigate({
-        pathname: `/list-invoices/${expenseClicked?._id}`,
+        pathname: `/list-invoices/detail`,
         search: `month=${expenseClicked?.month}&year=${expenseClicked?.year}`,
       });
     }
@@ -117,6 +117,14 @@ export default function HomePage() {
         <Row className="header">
           <h2 className="title">List Expenses</h2>
           <Row className="header">
+            <Button
+              onClick={() => {
+                navigate("/list-sellers");
+              }}
+              type="primary"
+            >
+              View all seller
+            </Button>
             <Button
               onClick={() => {
                 navigate("/list-invoices");

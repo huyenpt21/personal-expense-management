@@ -4,6 +4,7 @@ import LoginPage from "./pages/login";
 import PrivateRoute from "./pages/privateRoute";
 import ListInvoices from "./pages/listInvoices";
 import UploadInvoice from "./pages/uploadInvoice";
+import ListSellers from "./pages/listSellers";
 
 export default function RouterElement() {
   const routes = useRoutes([
@@ -16,11 +17,15 @@ export default function RouterElement() {
           element: <HomePage />,
         },
         {
+          path: "/list-sellers",
+          element: <ListSellers />,
+        },
+        {
           path: "/list-invoices",
           element: <ListInvoices />,
         },
         {
-          path: "/list-invoices/:idExpense",
+          path: "/list-invoices/:type",
           element: <ListInvoices />,
         },
         {

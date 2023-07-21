@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 export default function ListInvoices() {
   const navigate = useNavigate();
-  const { idExpense } = useParams();
+  const { type } = useParams();
   const [searchParams] = useSearchParams();
   const [record, setRecord] = useState([]);
   const [columnsRender, setColumnsRender] = useState([]);
@@ -104,7 +104,7 @@ export default function ListInvoices() {
   );
 
   useEffect(() => {
-    if (idExpense) {
+    if (type === "detail") {
       setLoadingList(true);
       apiInstance
         .get("/expense/get-invoice-in-expense", {
@@ -119,15 +119,30 @@ export default function ListInvoices() {
             handleRenderListInvoice(data);
           }
         });
+    } else if (type === "detail-from-seller") {
+      setLoadingList(true);
+      apiInstance
+        .post("/seller/get", {
+          _id: localStorage.getItem("invoiceId"),
+        })
+        .then(({ status, data }) => {
+          setLoadingList(false);
+          if (status === 200) {
+            handleRenderListInvoice(data);
+          }
+        })
+        .catch(() => {
+          setLoadingList(false);
+        });
     }
-  }, [idExpense, searchParams, handleRenderListInvoice]);
+  }, [type, searchParams, handleRenderListInvoice]);
 
   useEffect(() => {
-    if (!idExpense) {
+    if (!type) {
       setLoadingList(true);
       apiInstance
         .get("invoice/get-all", { params: query })
-        .then(({ status, data: { data: listInvoices, totalPage } }) => {
+        .then(({ status, data: { dataCopy: listInvoices, totalPage } }) => {
           setLoadingList(false);
           if (status === 200) {
             handleRenderListInvoice(listInvoices);
@@ -135,25 +150,22 @@ export default function ListInvoices() {
           }
         });
     }
-  }, [handleRenderListInvoice, query, idExpense]);
+  }, [handleRenderListInvoice, query, type]);
 
   useEffect(() => {
     const column = COLUMN_INVOICE.map((el) => {
       switch (el.key) {
-        case "_id":
-          el.width = 100;
-          break;
         case "seller":
-          el.width = 150;
+          el.width = 250;
           break;
         case "tax_code":
-          el.width = 50;
+          el.width = 130;
           break;
         case "isExpensed":
-          el.width = 150;
+          el.width = 120;
           break;
         case "isExtracted":
-          el.width = 150;
+          el.width = 120;
           break;
         case "invoice_number":
           el.width = 100;
