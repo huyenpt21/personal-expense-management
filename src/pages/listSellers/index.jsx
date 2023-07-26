@@ -64,7 +64,10 @@ export default function ListSellers() {
             ),
           }));
           setRecord(listSellerConverted);
-          setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
+          setPagination((prev) => ({
+            ...prev,
+            total: totalPage * prev.pageSize,
+          }));
         }
       });
   }, [navigate, query]);

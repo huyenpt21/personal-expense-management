@@ -146,7 +146,10 @@ export default function ListInvoices() {
           setLoadingList(false);
           if (status === 200) {
             handleRenderListInvoice(listInvoices);
-            setPagination((prev) => ({ ...prev, total: totalPage * 10 }));
+            setPagination((prev) => ({
+              ...prev,
+              total: totalPage * prev.pageSize,
+            }));
           }
         });
     }
